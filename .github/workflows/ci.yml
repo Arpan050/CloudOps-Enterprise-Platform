@@ -1,0 +1,64 @@
+name: CloudOps CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-build:
+    name: Validate microservices and build images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          package-manager-cache: false
+
+      - name: Install dependencies and check JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for service in auth-service booking-service notification-service; do
+            echo "Checking $service"
+
+            pushd "application/services/$service" > /dev/null
+
+            npm ci --no-audit --no-fund
+
+            find src -type f -name '*.js' -print0 |
+              xargs -0 -r -n1 node --check
+
+            popd > /dev/null
+          done
+
+      - name: Build microservice Docker images
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for service in auth-service booking-service notification-service; do
+            docker build \
+              -t "cloudops-${service}:ci" \
+              "application/services/$service"
+          done
+
+      - name: Validate Docker Compose configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for service in auth-service booking-service notification-service; do
+            touch "application/services/$service/.env.docker"
+          done
+
+          docker compose config --quiet

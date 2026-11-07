@@ -44,3 +44,11 @@ Thumbs.db
 *.joblib
 !data-engineering/datasets/README.md
 !machine-learning/**/README.md
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+*.tfplan

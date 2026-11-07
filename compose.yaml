@@ -1,0 +1,52 @@
+services:
+  auth-service:
+    build: ./application/services/auth-service
+    container_name: cloudops-auth-service
+    restart: unless-stopped
+    env_file:
+      - ./application/services/auth-service/.env.docker
+    expose:
+      - "3001"
+    networks:
+      - cloudops-platform
+
+  booking-service:
+    build: ./application/services/booking-service
+    container_name: cloudops-booking-service
+    restart: unless-stopped
+    env_file:
+      - ./application/services/booking-service/.env.docker
+    expose:
+      - "3002"
+    networks:
+      - cloudops-platform
+
+  notification-service:
+    build: ./application/services/notification-service
+    container_name: cloudops-notification-service
+    restart: unless-stopped
+    env_file:
+      - ./application/services/notification-service/.env.docker
+    expose:
+      - "3003"
+    networks:
+      - cloudops-platform
+
+  api-gateway:
+    image: nginx:alpine
+    container_name: cloudops-api-gateway
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./application/gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - booking-service
+      - notification-service
+    networks:
+      - cloudops-platform
+
+networks:
+  cloudops-platform:
+    external: true
