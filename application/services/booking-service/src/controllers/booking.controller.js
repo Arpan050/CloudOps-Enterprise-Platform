@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { pool } from "../db/pool.js";
 
 function formatBooking(booking) {
@@ -14,29 +15,60 @@ function formatBooking(booking) {
   };
 }
 
-// CREATE BOOKING
+// CREATE BOOKING AND OUTBOX EVENT IN ONE DATABASE TRANSACTION.
 export async function createBooking(req, res) {
-  const { destination, startDate, endDate, travelers } = req.body;
+  const client = await pool.connect();
 
-  const result = await pool.query(
-    `INSERT INTO bookings
-      (user_id, destination, start_date, end_date, travelers)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
-    [
-      req.auth.userId,
-      destination,
-      startDate,
-      endDate,
-      travelers,
-    ]
-  );
+  try {
+    await client.query("BEGIN");
 
-  return res.status(201).json({
-    data: {
-      booking: formatBooking(result.rows[0]),
-    },
-  });
+    const { destination, startDate, endDate, travelers } = req.body;
+
+    const result = await client.query(
+      `INSERT INTO bookings
+        (user_id, destination, start_date, end_date, travelers)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [req.auth.userId, destination, startDate, endDate, travelers]
+    );
+
+    const booking = result.rows[0];
+
+    const event = {
+      eventId: randomUUID(),
+      eventType: "booking.created",
+      occurredAt: new Date(booking.created_at).toISOString(),
+      data: {
+        bookingId: booking.id,
+        userId: booking.user_id,
+        destination: booking.destination,
+      },
+    };
+
+    await client.query(
+      `INSERT INTO booking_event_outbox
+        (event_id, event_type, payload)
+       VALUES ($1, $2, $3::jsonb)`,
+      [event.eventId, event.eventType, JSON.stringify(event)]
+    );
+
+    await client.query("COMMIT");
+
+    return res.status(201).json({
+      data: {
+        booking: formatBooking(booking),
+        event: {
+          status: "queued",
+          eventId: event.eventId,
+        },
+      },
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 // GET CURRENT USER'S BOOKINGS
