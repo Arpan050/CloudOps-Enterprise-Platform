@@ -121,10 +121,19 @@ This repository intentionally does not include private `.env` files. Create each
 The root Compose file expects the external Docker network `cloudops-platform` and the three service database containers. Start/configure the databases using each service's own `compose.yaml`, create the shared network, then start the root application stack:
 
 ```bash
-docker network create cloudops-platform
+docker network inspect cloudops-platform >/dev/null 2>&1 || docker network create cloudops-platform
+
 docker compose -f application/services/auth-service/compose.yaml up -d
 docker compose -f application/services/booking-service/compose.yaml up -d
 docker compose -f application/services/notification-service/compose.yaml up -d
+
+# The standalone database Compose files do not declare the shared app network.
+for container in cloudops-auth-db cloudops-booking-db cloudops-notification-db; do
+  if ! docker inspect "$container" --format '{{json .NetworkSettings.Networks}}' | grep -q '"cloudops-platform"'; then
+    docker network connect cloudops-platform "$container"
+  fi
+done
+
 docker compose up -d --build
 curl -i http://localhost:8080/health
 ```
