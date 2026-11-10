@@ -86,7 +86,6 @@ resource "aws_lambda_function" "booking_event_consumer" {
   memory_size = 128
   timeout     = 20
 
-  reserved_concurrent_executions = 2
 
   environment {
     variables = {
@@ -109,10 +108,10 @@ resource "aws_lambda_event_source_mapping" "booking_events" {
   event_source_arn = aws_sqs_queue.booking_events.arn
   function_name    = aws_lambda_function.booking_event_consumer.arn
 
-  enabled                           = true
-  batch_size                        = 5
+  enabled                            = true
+  batch_size                         = 5
   maximum_batching_window_in_seconds = 5
-  function_response_types           = ["ReportBatchItemFailures"]
+  function_response_types            = ["ReportBatchItemFailures"]
 
   scaling_config {
     maximum_concurrency = 2

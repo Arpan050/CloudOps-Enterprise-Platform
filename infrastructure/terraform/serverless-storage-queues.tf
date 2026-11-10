@@ -19,7 +19,7 @@ resource "aws_sqs_queue" "booking_events" {
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.booking_events_dlq.arn
-    maxReceiveCount     = 3
+    maxReceiveCount     = 5
   })
 
   tags = {

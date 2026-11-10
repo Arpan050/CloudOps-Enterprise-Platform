@@ -52,3 +52,4 @@ Thumbs.db
 *.tfvars
 crash.log
 *.tfplan
+serverless/lambda/booking-event-consumer/function.zip
