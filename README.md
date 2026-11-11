@@ -164,3 +164,9 @@ Review [Terraform resources](infrastructure/terraform/) and the [submission repo
 The design avoided NAT Gateway, EKS, and other unnecessary always-on managed compute. DynamoDB uses on-demand billing, S3 event objects expire after 30 days, and the Lambda log group retains logs for 7 days. These controls reduce potential usage; they do not guarantee a zero bill. Actual account charges were not audited as part of the implementation evidence.
 
 The existing Voyage EC2 workload was kept separate and was not modified by the CloudOps application deployment. Review AWS Billing and remove only resources that are confirmed no longer required. Never destroy Terraform-managed resources or database volumes as a cleanup shortcut.
+## Final implementation report and evidence
+
+- [21-page CloudOps implementation report (public, sensitive account identifiers redacted)](docs/CloudOps_Enterprise_Platform_Implementation_Report_Public.pdf)
+- [Screenshot evidence gallery and index](evidence/screenshots/README.md)
+
+The report preserves the implementation status and limitations. The local microservices are not claimed as deployed inside the AWS VPC, PostgreSQL is local rather than RDS, the GitHub Actions workflow is CI-only, and Big Data/AI and no-code workstreams are not implemented.

@@ -1,16 +1,31 @@
-# Screenshot Evidence Checklist
+# CloudOps Enterprise Platform - Screenshot Evidence
 
-The technical checks were run and their outputs were recorded in [test evidence](../tests/README.md). Actual screenshot image files have not yet been committed. Capture these screens from the real environment before final upload if the evaluator requires visual evidence.
+These screenshots are extracted from the 21-page implementation report. All embedded screenshots and the architecture diagram from the report are retained as separate PNG files. The report PDF is stored at [`docs/CloudOps_Enterprise_Platform_Implementation_Report_Public.pdf`](../../docs/CloudOps_Enterprise_Platform_Implementation_Report_Public.pdf).
 
-Recommended minimum set:
+Sensitive AWS account identifiers and the Terraform IAM user's unique principal ID have been blurred in public copies. The original report's technical evidence, status labels, event IDs, queue settings, deployment outputs, and test results are otherwise preserved.
 
-1. **Terraform**: successful `terraform apply` summary for the retry-policy update (0 added, 1 changed, 0 destroyed).
-2. **AWS VPC**: VPC details showing the CloudOps CIDR and the four subnets across two Availability Zones.
-3. **SQS**: main queue properties with visibility timeout 180 seconds and redrive max receive count 5; DLQ with the failed test message.
-4. **Lambda / CloudWatch**: event-source mapping enabled and log entry for successful processing. Include the invalid UUID failure log only as a separate failure-test screen.
-5. **DynamoDB**: matching event item, with no secrets or unrelated records visible.
-6. **S3**: object properties showing JSON content type, AES-256 encryption and lifecycle expiry.
-7. **GitHub Actions**: successful CloudOps CI run #11.
-8. **Local application**: gateway health response and the successful booking response. Redact JWTs, passwords, user secrets and any unrelated local data.
+| File | Evidence |
+|---|---|
+| `00-implemented-architecture.png` | Local WSL/Docker application layer and AWS event-processing layer. |
+| `01-environment-versions.png` | Recorded WSL 2, Terraform, AWS CLI, Docker, Compose, Node.js, npm, and Git versions. |
+| `02-terraform-init-validate.png` | Terraform provider initialization and successful validation. |
+| `03-terraform-final-plan.png` | Terraform refresh and no-change plan output. Account and IAM principal identifiers blurred. |
+| `04-aws-vpc-subnets.png` | CloudOps VPC resource map with four subnets, route tables, and Internet Gateway. AWS owner ID blurred. |
+| `05-sqs-queue-dlq-settings.png` | Booking queue configuration, SQS encryption, visibility timeout, and enabled DLQ. Account number in ARN/URL blurred. |
+| `06-lambda-function-and-mapping.png` | Lambda consumer overview, SQS trigger, code view, runtime and settings. Account numbers in ARNs/paths blurred. |
+| `07-docker-services-gateway-health.png` | Auth, Booking, Notification, and Nginx containers with HTTP 200 gateway health response. |
+| `08-booking-api-response.png` | Synthetic booking registration/creation response with HTTP 201 and queued event. Test user ID was already redacted in the source. |
+| `09-outbox-worker-postgres-published.png` | Outbox worker successful SQS publication and matching PostgreSQL `published` state. |
+| `10-dynamodb-event-record.png` | Matching event metadata and S3 object key. Test user ID was already redacted in the source. |
+| `11-s3-object-properties.png` | S3 HeadObject properties: JSON, 251 bytes, AES-256, lifecycle expiration. Account number in bucket name blurred. |
+| `12-dlq-final-retry-policy.png` | Main queue/DLQ counts and 180-second visibility timeout; account number in DLQ target ARN blurred. |
+| `13-github-actions-success.png` | Successful CloudOps CI workflow run #20. |
+| `14-sts-expired-token-troubleshooting.png` | PostgreSQL evidence of the separate event that failed after expired STS credentials. |
 
-Use the actual console or terminal state. Do not manufacture screenshots or edit outputs to make failed or incomplete components appear successful. Avoid exposing account identifiers, credentials, tokens, private keys, email addresses and sensitive data.
+## Evidence boundaries
+
+- The report records a successful end-to-end booking event separately from a later event that failed because its temporary STS token expired. Do not conflate the two event IDs.
+- The initial DLQ test was performed with `maxReceiveCount = 3`; the final applied setting was subsequently raised to `5` and verified separately.
+- GitHub Actions is CI (dependency installation, syntax validation, image builds, and Compose validation). The report does not claim automated deployment to AWS.
+- The local microservices/PostgreSQL stack was not deployed inside the AWS VPC; PostgreSQL was not run as RDS.
+- Big Data/AI and no-code workstreams are not implemented in this project.
