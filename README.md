@@ -1,6 +1,27 @@
 # CloudOps Enterprise Platform
 
-**Cloud Infrastructure, Automation & Deployment Ecosystem**
+**Flagship Cloud & DevOps Capstone | AWS · Terraform · Docker · Microservices · Serverless · CI**
+
+An integrated cloud engineering capstone combining Terraform-managed AWS infrastructure, Dockerized Node.js microservices, reliable booking-event publication, asynchronous AWS processing, and GitHub Actions CI.
+
+[**Read the 21-page implementation report**](docs/CloudOps_Enterprise_Platform_Implementation_Report_Public.pdf) · [**Browse screenshot evidence**](evidence/screenshots/README.md) · [**View architecture**](docs/architecture/overview.md)
+
+![Implemented local application and AWS event-processing architecture](evidence/screenshots/00-implemented-architecture.png)
+
+> **Implementation boundary:** The Auth, Booking, and Notification APIs plus PostgreSQL ran locally in Docker Desktop under WSL 2. The AWS VPC foundation and SQS/Lambda/S3/DynamoDB event-processing resources were deployed in AWS. The local application containers were **not** deployed inside the CloudOps VPC. GitHub Actions performs CI validation and image builds; it does **not** perform automated deployment to AWS.
+
+### Why this is the flagship project
+
+- **Infrastructure as Code:** Terraform-managed VPC, subnets, routing, and security groups.
+- **Microservices:** Auth, Booking, and Notification APIs behind an Nginx gateway, with separate PostgreSQL databases.
+- **Reliable event flow:** transactional outbox in PostgreSQL, followed by an SQS publisher using short-lived assumed-role credentials.
+- **Serverless processing:** SQS invokes a Python Lambda consumer that stores raw events in S3 and metadata in DynamoDB.
+- **Failure handling:** retries, partial batch failure handling, dead-letter queue testing, and CloudWatch logs.
+- **CI validation:** GitHub Actions checks dependencies and JavaScript syntax, builds the service images, and validates Docker Compose.
+
+The report records an API-created booking event verified across PostgreSQL, SQS, Lambda, DynamoDB, and S3. It also records failure testing and the final retry-policy configuration.
+
+**Honest scope:** This is an implemented and tested capstone, not a claim that every enterprise workstream is complete. The local APIs were not deployed inside the AWS VPC; PostgreSQL was not moved to RDS; CI does not deploy to AWS; full monitoring dashboards, Big Data/AI, and no-code integration were not implemented. See the workstream status table below.
 
 A cloud-computing capstone that combines Terraform-managed AWS infrastructure, a locally orchestrated microservices application, and an AWS serverless booking-event pipeline.
 
