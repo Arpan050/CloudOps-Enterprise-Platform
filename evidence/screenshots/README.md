@@ -19,7 +19,7 @@ Sensitive AWS account identifiers and the Terraform IAM user's unique principal 
 | `10-dynamodb-event-record.png` | Matching event metadata and S3 object key. Test user ID was already redacted in the source. |
 | `11-s3-object-properties.png` | S3 HeadObject properties: JSON, 251 bytes, AES-256, lifecycle expiration. Account number in bucket name blurred. |
 | `12-dlq-final-retry-policy.png` | Main queue/DLQ counts and 180-second visibility timeout; account number in DLQ target ARN blurred. |
-| `13-github-actions-success.png` | Successful CloudOps CI workflow run #20. |
+| `13-github-actions-success.png` | Successful CloudOps CI workflow run #23 for commit `6cccb95`. |
 | `14-sts-expired-token-troubleshooting.png` | PostgreSQL evidence of the separate event that failed after expired STS credentials. |
 
 ## Evidence boundaries
