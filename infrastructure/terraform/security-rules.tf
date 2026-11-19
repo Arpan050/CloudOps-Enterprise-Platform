@@ -28,8 +28,8 @@ resource "aws_vpc_security_group_ingress_rule" "edge_https" {
 resource "aws_vpc_security_group_ingress_rule" "app_from_edge" {
   security_group_id            = aws_security_group.app.id
   referenced_security_group_id = aws_security_group.edge.id
-  from_port                    = 3000
-  to_port                      = 3000
+  from_port                    = 3001
+  to_port                      = 3003
   ip_protocol                  = "tcp"
   description                  = "Application traffic from edge"
 }
@@ -63,8 +63,8 @@ resource "aws_vpc_security_group_ingress_rule" "data_redis" {
 resource "aws_vpc_security_group_egress_rule" "edge_to_app" {
   security_group_id            = aws_security_group.edge.id
   referenced_security_group_id = aws_security_group.app.id
-  from_port                    = 3000
-  to_port                      = 3000
+  from_port                    = 3001
+  to_port                      = 3003
   ip_protocol                  = "tcp"
   description                  = "Edge to application"
 }
